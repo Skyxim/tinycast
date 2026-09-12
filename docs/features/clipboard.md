@@ -350,6 +350,12 @@ purge caches by hand. `PaletteState.isVisible` is therefore the second half of t
 paused `AVPlayer` still holds its asset reader and decoder open, which is how a 100 MB budget goes.
 Nothing ever autoplays — arrow-keying a list of twenty videos must not start twenty decodes.
 
+**`clipboardMediaHeight` is a cap, not a height.** As a fixed `frame(height:)` the player asked for
+260 pt whatever the pane had: with the Information block's 175 pt beneath it the column wanted 435 pt
+of a 359 pt content area, and the overflow pushed the bottom bar out and the panel taller. Every other
+preview kind already shrinks — an image scales to fit, text scrolls — so the player does too, and only
+its maximum is a token.
+
 **A backup carries the path, never the bytes.** `BackupClipboardItem.file` exports `text` and no
 blob, a file already gone at export time is counted missing, and a restore drops a row whose path
 does not exist on this Mac — the same thing the Raycast import already does for an image path.

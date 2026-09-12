@@ -114,7 +114,8 @@ private struct MediaPreviewPlayer: View {
     var body: some View {
         PlayerSurface(player: player)
             .background { if isAudio { AudioPoster(url: url) } }
-            .frame(height: metrics.size.clipboardMediaHeight)
+            // A cap, not a height: a fixed one outgrows the pane and pushes the panel taller.
+            .frame(maxHeight: metrics.size.clipboardMediaHeight)
             .clipShape(RoundedRectangle(cornerRadius: metrics.radius.card, style: .continuous))
             .task(id: PlaybackKey(url: url, isVisible: palette.isVisible)) {
                 stop()

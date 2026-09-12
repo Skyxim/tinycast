@@ -7,6 +7,7 @@ struct FileSearchMediaPlayer: View {
 
     @Environment(PaletteState.self) private var palette
     let url: URL
+    let autoplays: Bool
     @State private var player: AVPlayer?
 
     static func plays(_ url: URL) -> Bool {
@@ -25,7 +26,9 @@ struct FileSearchMediaPlayer: View {
             .task(id: PlaybackKey(url: url, isVisible: palette.isVisible)) {
                 stop()
                 guard palette.isVisible else { return }
-                player = AVPlayer(url: url)
+                let player = AVPlayer(url: url)
+                if autoplays { player.play() }
+                self.player = player
             }
             .onDisappear(perform: stop)
     }
