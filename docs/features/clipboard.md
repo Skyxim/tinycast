@@ -348,7 +348,9 @@ purge caches by hand. `PaletteState.isVisible` is therefore the second half of t
 `.task(id:)` key, alongside the URL, so one mechanism covers both teardown triggers with no
 `onChange` racing it. Teardown calls `replaceCurrentItem(with: nil)` and not merely `pause()`: a
 paused `AVPlayer` still holds its asset reader and decoder open, which is how a 100 MB budget goes.
-Nothing ever autoplays — arrow-keying a list of twenty videos must not start twenty decodes.
+Nothing ever autoplays — arrow-keying a list of twenty videos must not start twenty decodes. The
+player view is `KeyboardFocusRefusing`, so clicking its transport leaves the caret in the search
+field; see [palette.md](palette.md#the-keyboard-belongs-to-the-search-field).
 
 **`clipboardMediaHeight` is a cap, not a height.** As a fixed `frame(height:)` the player asked for
 260 pt whatever the pane had: with the Information block's 175 pt beneath it the column wanted 435 pt
