@@ -883,7 +883,9 @@ struct RootPaletteView: View {
                 if settings.paletteDraggable {
                     TextTrailingDragHandle(
                         text: vm.query, font: metrics.typography.searchFieldNSFont,
-                        onBegan: beginDrag, onEnded: endDrag)
+                        onBegan: beginDrag, onEnded: endDrag,
+                        // A press that never moved was aimed at the field the handle covers.
+                        onClick: { searchFocused = true })
                 }
             }
             // The panel resolves the pointer against this rather than hit-testing for the field.

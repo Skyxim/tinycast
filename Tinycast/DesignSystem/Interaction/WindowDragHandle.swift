@@ -31,6 +31,7 @@ struct TextTrailingDragHandle: NSViewRepresentable {
     var font: NSFont
     var onBegan: () -> Void
     var onEnded: () -> Void
+    var onClick: () -> Void
 
     func makeNSView(context: Context) -> NSView { TextTailDragView() }
 
@@ -38,7 +39,7 @@ struct TextTrailingDragHandle: NSViewRepresentable {
         guard let view = nsView as? TextTailDragView else { return }
         view.text = text
         view.font = font
-        view.bind(onBegan: onBegan, onEnded: onEnded)
+        view.bind(onBegan: onBegan, onEnded: onEnded, onClick: onClick)
     }
 }
 
@@ -46,10 +47,17 @@ struct TextTrailingDragHandle: NSViewRepresentable {
 private class DragView: NSView {
     private var onBegan: (() -> Void)?
     private var onEnded: (() -> Void)?
+    private var onClick: (() -> Void)?
+    /// Slop before a press is a drag, so a click that never moves stays a click.
+    private static let dragSlop: CGFloat = 3
 
-    func bind(onBegan: @escaping () -> Void, onEnded: @escaping () -> Void) {
+    func bind(
+        onBegan: @escaping () -> Void, onEnded: @escaping () -> Void,
+        onClick: (() -> Void)? = nil
+    ) {
         self.onBegan = onBegan
         self.onEnded = onEnded
+        self.onClick = onClick
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -57,7 +65,7 @@ private class DragView: NSView {
         // Deltas off `mouseLocation`, so no view or window coordinate conversion can drift.
         let origin = window.frame.origin
         let start = NSEvent.mouseLocation
-        onBegan?()
+        var dragging = false
         window.trackEvents(
             matching: [.leftMouseDragged, .leftMouseUp], timeout: NSEvent.foreverDuration,
             mode: .eventTracking
@@ -67,10 +75,18 @@ private class DragView: NSView {
                 return
             }
             let mouse = NSEvent.mouseLocation
+            guard dragging || hypot(mouse.x - start.x, mouse.y - start.y) > Self.dragSlop else {
+                return
+            }
+            if !dragging {
+                dragging = true
+                self.onBegan?()
+            }
             window.setFrameOrigin(
                 CGPoint(x: origin.x + mouse.x - start.x, y: origin.y + mouse.y - start.y))
         }
-        onEnded?()
+        // A press that never moved was a click on whatever the handle covers, not a drag.
+        if dragging { onEnded?() } else { onClick?() }
     }
 }
 

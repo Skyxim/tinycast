@@ -138,7 +138,7 @@ private struct PlayerSurface: NSViewRepresentable {
     let player: AVPlayer?
 
     func makeNSView(context: Context) -> AVPlayerView {
-        let view = AVPlayerView()
+        let view = PreviewPlayerView()
         view.controlsStyle = .inline
         view.showsFullScreenToggleButton = false
         view.videoGravity = .resizeAspect
@@ -156,6 +156,9 @@ private struct PlayerSurface: NSViewRepresentable {
         view.player = nil
     }
 }
+
+/// Clicking play must not move the keyboard off the search field, and a transport button would.
+private final class PreviewPlayerView: AVPlayerView, KeyboardFocusRefusing {}
 
 /// An audio asset draws nothing of its own, so its artwork sits behind the transport.
 private struct AudioPoster: View {
