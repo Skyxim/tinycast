@@ -1,37 +1,46 @@
+import { Heart } from "lucide-react";
 import { site } from "../data/site";
 import { Button } from "./ui/button";
-import { AppleLogo } from "./ui/icon";
+import { GitHubLogo, Logo } from "./ui/icon";
 
-export function Closing() {
+// The mark alone on a violet glow, so the page ends on the brand.
+function GlowingMark() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="px-5 pt-20 text-center sm:px-10 sm:pt-28">
-        <span
-          aria-hidden="true"
-          className="animate-blink mx-auto block size-2.5 rounded-full bg-violet"
-        />
-        <h2 className="mx-auto mt-7 max-w-2xl text-closing">
-          Give your Mac one keystroke.
-        </h2>
-        <p className="mx-auto mt-5 max-w-md text-pretty text-body-lg text-fg-muted">
-          Free, open source, and under 100 MB of memory. Set a shortcut and see
-          whether you miss the old way.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <Button href="/#install" size="lg">
-            <AppleLogo size={16} />
-            Download for Mac
-          </Button>
-        </div>
-        <p className="mt-5 font-mono text-micro uppercase text-fg-muted/80">
-          {site.platform} · Apple silicon & Intel
-        </p>
-      </div>
-      <div
+    <span className="relative mx-auto flex size-28 items-center justify-center sm:size-32">
+      <span
         aria-hidden="true"
-        className="pointer-events-none mt-16 mb-[-0.2em] select-none whitespace-nowrap text-center text-wordmark text-fg/6 sm:mt-20"
-      >
-        {site.name}
+        className="pointer-events-none absolute -inset-24 bg-[radial-gradient(closest-side,rgb(134_59_255/0.32),transparent)]"
+      />
+      <Logo size={72} className="relative" />
+    </span>
+  );
+}
+
+export function Support() {
+  return (
+    <section
+      id="support"
+      className="px-5 pb-24 pt-12 text-center sm:px-10 sm:pb-32"
+    >
+      <div aria-hidden="true">
+        <GlowingMark />
+      </div>
+      <h2 className="mx-auto mt-14 max-w-2xl text-closing">
+        Keep Tinycast free.
+      </h2>
+      <p className="mx-auto mt-4 max-w-lg text-pretty text-body-lg text-fg-muted">
+        Tinycast is free and open source, with no account and no telemetry. If
+        it has earned a place on your Mac, your support keeps development going.
+      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href={site.support} size="lg">
+          <Heart size={16} />
+          Support development
+        </Button>
+        <Button href={site.repo} variant="ghost" size="lg">
+          <GitHubLogo size={16} />
+          Star on GitHub
+        </Button>
       </div>
     </section>
   );

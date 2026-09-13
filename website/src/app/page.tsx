@@ -1,5 +1,3 @@
-import { Closing } from "../components/closing";
-import { Faq } from "../components/faq";
 import { Features } from "../components/features";
 import { Footer } from "../components/footer";
 import { Gallery } from "../components/gallery";
@@ -8,6 +6,7 @@ import { Install } from "../components/install";
 import { Keyboard } from "../components/keyboard";
 import { Nav } from "../components/nav";
 import { Privacy } from "../components/privacy";
+import { Support } from "../components/support";
 import { Switch } from "../components/switch";
 import { ScrollTop } from "../components/ui/scroll-top";
 
@@ -23,8 +22,7 @@ export default function HomePage() {
         <Keyboard />
         <Switch />
         <Install />
-        <Faq />
-        <Closing />
+        <Support />
       </main>
       <Footer />
       <ScrollTop />

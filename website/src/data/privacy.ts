@@ -1,24 +1,57 @@
-// Every claim here is stated in the docs (Getting started, Permissions,
-// Extensions). Don't add one that isn't.
+import type { IconName } from "../components/ui/feature-icons";
+
+// Every claim here is stated in the docs: Getting started, Settings → Features,
+// Permissions, Extensions, AI, Snippets, Calendar and Clipboard. Don't add one
+// that isn't.
 
 export const privacyStats = [
   { value: "0", label: "accounts" },
   { value: "0", label: "telemetry" },
   { value: "0", label: "dependencies" },
-  { value: "<100", unit: "MB", label: "of memory" },
+  { value: "<100 MB", label: "of memory" },
 ] as const;
 
-export const privacyPromises = [
+export type DefaultSwitch = {
+  icon: IconName;
+  name: string;
+  note: string;
+  isOn: boolean;
+};
+
+// Mirrors the Features table in docs/reference/settings: everything ships off
+// except Clipboard (and Emoji, which has no switch).
+export const defaultSwitches: DefaultSwitch[] = [
   {
-    title: "Permissions only when you ask",
-    body: "The launcher, calculator, emoji picker and search need no permission at all. Anything else asks the moment you turn it on, never at launch.",
+    icon: "aiChat",
+    name: "AI",
+    note: "No chat command and no history file until you turn it on.",
+    isOn: false,
   },
   {
-    title: "Keystrokes stay on your Mac",
-    body: "Snippets ship off. Switch them on and keyword matching runs locally. Keystrokes are never stored and never sent anywhere.",
+    icon: "extensions",
+    name: "Extensions",
+    note: "No folder scanned, no JavaScript engine running.",
+    isOn: false,
   },
   {
-    title: "Third-party code is opt-in",
-    body: "Extensions ship off too. Until you turn them on, no folder is scanned and no JavaScript engine exists.",
+    icon: "snippets",
+    name: "Snippets",
+    note: "The only feature that watches typing. Matching stays on your Mac.",
+    isOn: false,
   },
-] as const;
+  {
+    icon: "calendar",
+    name: "Calendar",
+    note: "Explains what it reads before macOS asks. Events never leave.",
+    isOn: false,
+  },
+  {
+    icon: "clipboard",
+    name: "Clipboard history",
+    note: "Kept on your Mac for 3 months. Skips Keychain Access and Passwords.",
+    isOn: true,
+  },
+];
+
+export const permissionNote =
+  "Permissions are asked for the moment a feature needs one, never at launch. A settings backup can never switch on extensions or snippets.";

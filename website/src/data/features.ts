@@ -1,66 +1,96 @@
 import type { IconName } from "../components/ui/feature-icons";
 
+export type FeaturePreview =
+  | "launcher"
+  | "extensions"
+  | "clipboard"
+  | "calculator"
+  | "aiChat"
+  | "quickActions"
+  | "windows"
+  | "snippets";
+
 export type Feature = {
   icon: IconName;
   title: string;
   body: string;
   /** Deep link into the docs page that covers this feature. */
   href: string;
+  preview: FeaturePreview;
+  /** Spans two columns of the bento on wide screens. */
+  isWide: boolean;
 };
 
 export type MinorFeature = Pick<Feature, "icon" | "title" | "href">;
 
 // Everything Tinycast does, in plain language. Kept true to what the app
 // actually ships — each maps to a real feature in the source, and each links
-// to the docs page that covers it.
+// to the docs page that covers it. Order sets the bento: every row adds up to
+// four columns, with wide cards counting as two.
 export const coreFeatures: Feature[] = [
   {
     icon: "launch",
     title: "App launcher",
     body: "Fuzzy-search every app and open it with a keystroke. Pin favorites, see what's running, restart or quit without the mouse.",
     href: "/docs/launcher",
-  },
-  {
-    icon: "extensions",
-    title: "Raycast extensions",
-    body: "Runs them natively, drawn in SwiftUI. Install from the store with no toolchain, or bring the ones you have.",
-    href: "/docs/extensions",
-  },
-  {
-    icon: "clipboard",
-    title: "Clipboard history",
-    body: "Text, images, files and colors. Search inside screenshots, filter by type, paste straight back where you were.",
-    href: "/docs/features/clipboard",
+    preview: "launcher",
+    isWide: true,
   },
   {
     icon: "calculator",
     title: "Inline calculator",
-    body: "Math, units, live currency, time zones and plain-English dates like “days till 9 Apr”, as you type.",
+    body: "Math, units, live currency, time zones and dates like “days till 9 Apr”.",
     href: "/docs/features/calculator",
+    preview: "calculator",
+    isWide: false,
+  },
+  {
+    icon: "clipboard",
+    title: "Clipboard history",
+    body: "Text, images, files and colors, searchable and pasted straight back.",
+    href: "/docs/features/clipboard",
+    preview: "clipboard",
+    isWide: false,
   },
   {
     icon: "aiChat",
     title: "AI Chat",
-    body: "Apple Intelligence, the Codex, Claude or OpenCode you already use, or any API you bring. Keys stay in your Keychain.",
+    body: "Apple Intelligence, Codex, Claude, OpenCode or any API you bring.",
     href: "/docs/ai",
+    preview: "aiChat",
+    isWide: false,
   },
   {
     icon: "quickActions",
     title: "Quick Actions",
-    body: "Select text in any app, press a key, and fix, rewrite, translate or summarize it in place.",
+    body: "Select text in any app and fix, rewrite, translate or summarize it.",
     href: "/docs/ai/quick-actions",
+    preview: "quickActions",
+    isWide: false,
   },
   {
     icon: "windows",
     title: "Window management",
-    body: "Halves, thirds, nudges, display moves and saved layouts. 34 commands, and no new permission to grant.",
+    body: "Halves, thirds, nudges, display moves and saved layouts, all from the keyboard. 34 commands.",
     href: "/docs/features/window-management",
+    preview: "windows",
+    isWide: true,
+  },
+  {
+    icon: "extensions",
+    title: "Raycast extensions",
+    body: "Run in JavaScriptCore and drawn in SwiftUI. Install from the store with no toolchain.",
+    href: "/docs/extensions",
+    preview: "extensions",
+    isWide: true,
   },
   {
     icon: "snippets",
     title: "Snippets",
-    body: "Markdown templates with placeholders and arguments. Type a keyword in any app and it expands.",
+    body: "Markdown templates with placeholders. Type a keyword in any app and it expands.",
     href: "/docs/features/snippets",
+    preview: "snippets",
+    isWide: true,
   },
 ];
 

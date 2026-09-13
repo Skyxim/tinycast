@@ -22,7 +22,6 @@ const twMerge = extendTailwindMerge({
             "heading",
             "closing",
             "display",
-            "wordmark",
           ],
         },
       ],

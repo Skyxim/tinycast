@@ -1,6 +1,42 @@
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { coreFeatures, moreFeatures } from "../data/features";
+import { coreFeatures, moreFeatures, type Feature } from "../data/features";
+import { cn } from "../lib/cn";
+import { FeaturePreviewArt } from "./feature-previews";
+import { Button } from "./ui/button";
+import { featureIcons } from "./ui/feature-icons";
 import { Section } from "./ui/section";
+
+function FeatureCard({ title, body, href, preview, isWide }: Feature) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "group flex min-w-0 flex-col rounded-2xl bg-tint/4 p-2 transition-colors hover:bg-tint/6",
+        isWide && "sm:col-span-2",
+      )}
+    >
+      {/* Decorative: the title and body below say the same thing in words. */}
+      <div
+        aria-hidden="true"
+        className="h-44 overflow-hidden rounded-xl bg-canvas p-4"
+      >
+        <FeaturePreviewArt preview={preview} />
+      </div>
+      <div className="px-3 pb-3 pt-4">
+        <h3 className="flex items-center gap-1 text-body font-medium text-fg">
+          {title}
+          <ArrowUpRight
+            size={15}
+            aria-hidden="true"
+            className="text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        </h3>
+        <p className="mt-1 text-small text-fg-muted">{body}</p>
+      </div>
+    </Link>
+  );
+}
 
 export function Features() {
   return (
@@ -9,45 +45,41 @@ export function Features() {
       index={1}
       label="Features"
       title="One palette for everything you do all day."
-      intro="Almost everything ships off until you ask for it, so Tinycast is exactly as big as you make it. Each item links to its page in the docs."
+      intro="Almost everything ships off until you ask for it, so Tinycast is exactly as big as you make it."
     >
-      <div className="grid sm:grid-cols-2 sm:gap-x-12">
-        {coreFeatures.map((feature, i) => (
-          <Link
-            key={feature.title}
-            href={feature.href}
-            className="group grid grid-cols-[2.25rem_1fr] gap-x-4 border-t border-border/60 py-6"
-          >
-            <span className="font-mono text-eyebrow leading-6 tracking-normal text-fg-subtle tabular-nums transition-colors group-hover:text-violet-bright">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span>
-              <h3 className="text-body font-medium leading-6 tracking-tight">
-                {feature.title}
-              </h3>
-              <p className="mt-1.5 max-w-md text-small text-fg-muted">
-                {feature.body}
-              </p>
-            </span>
-          </Link>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {coreFeatures.map((feature) => (
+          <FeatureCard key={feature.title} {...feature} />
         ))}
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:gap-10">
-        <p className="shrink-0 font-mono text-micro uppercase leading-6 text-fg-muted">
-          Also in the box
-        </p>
-        <ul className="flex flex-wrap gap-x-5 gap-y-2">
-          {moreFeatures.map(({ title, href }) => (
-            <li key={title}>
-              <Link
-                href={href}
-                className="text-small text-fg-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-fg hover:decoration-violet-bright"
-              >
-                {title}
-              </Link>
-            </li>
-          ))}
+      <div className="mt-4 rounded-2xl bg-tint/4 p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h3 className="text-body font-medium text-fg">Also in the box</h3>
+          <Button href="/docs" variant="outline">
+            Browse the docs
+          </Button>
+        </div>
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {moreFeatures.map(({ icon, title, href }) => {
+            const Icon = featureIcons[icon];
+            return (
+              <li key={title}>
+                <Link
+                  href={href}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-small text-fg-muted transition-colors hover:text-fg"
+                >
+                  <Icon
+                    size={13}
+                    strokeWidth={2}
+                    className="text-violet-bright"
+                    aria-hidden="true"
+                  />
+                  {title}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </Section>

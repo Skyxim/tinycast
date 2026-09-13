@@ -19,7 +19,7 @@
    Light is the bare :root so an unstyled first paint is never a dark flash.
    Dark is applied by next-themes via .dark on <html>. */
 :root {
-  --tc-canvas: #fbfbfc;
+  --tc-canvas: #ffffff;
   --tc-surface: #ffffff;
   --tc-well: #f1f2f4;
   --tc-badge: #e9eaec;
@@ -53,10 +53,6 @@
      is findable when skimming a wall of prose. */
   --tc-kbd-fg: #5b12bd;
   --tc-kbd-bg: rgb(134 59 255 / 0.12);
-
-  /* The inverted privacy band: dark on a light page, a step lighter on a dark one. */
-  --tc-ink: #16181c;
-  --tc-ink-fg: #f7f7f8;
 }
 
 .dark {
@@ -93,9 +89,6 @@
 
   --tc-kbd-fg: #d9c6ff;
   --tc-kbd-bg: rgb(168 117 255 / 0.2);
-
-  --tc-ink: #111214;
-  --tc-ink-fg: #ffffff;
 }
 
 @theme inline {
@@ -115,8 +108,6 @@
   --color-kbd-bg: var(--tc-kbd-bg); /* keycap fill */
   /* Alpha overlays mix from this, so `bg-tint/5` inverts with the theme. */
   --color-tint: rgb(var(--tc-tint));
-  --color-ink: var(--tc-ink); /* inverted band */
-  --color-ink-fg: var(--tc-ink-fg); /* text on the inverted band */
 
   /* Tinycast brand — violet mark from the app icon, cyan as its counter-tone.
      Literal in both themes: they carry identity, not elevation. */
@@ -189,12 +180,6 @@
   --text-display--line-height: 1.04;
   --text-display--letter-spacing: -0.045em;
   --text-display--font-weight: 600;
-
-  /* The faded name under the closing call to action. */
-  --text-wordmark: clamp(4.5rem, 13.5vw, 10.5rem);
-  --text-wordmark--line-height: 0.75;
-  --text-wordmark--letter-spacing: -0.05em;
-  --text-wordmark--font-weight: 600;
 
   /* Spacing & radius use Tailwind's built-in scales — the 8px grid maps
      cleanly onto them (p-4 = 16px, p-6 = 24px, rounded-2xl = 16px, …). */
@@ -323,10 +308,6 @@
     );
   }
 
-  .animate-blink {
-    animation: blink 1.6s step-end infinite;
-  }
-
   /* Transparent over the hero, glass once the page moves. Browsers without
      scroll timelines, and reduced motion, skip the fade and keep the glass. */
   .header-veil {
@@ -358,19 +339,6 @@
   .demo-progress {
     transform-origin: left;
     animation: demo-progress linear both;
-  }
-
-  /* The FAQ chevron flips, and its number lights up, while an answer is open. */
-  details[open] > summary .faq-mark {
-    rotate: 180deg;
-  }
-
-  details[open] > summary .faq-number {
-    color: var(--color-violet-bright);
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
   }
 
   /* A keyboard key. One complete rule rather than a stack of utilities: the
@@ -455,12 +423,6 @@
 @keyframes header-veil {
   from {
     background-color: transparent;
-  }
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0.25;
   }
 }
 

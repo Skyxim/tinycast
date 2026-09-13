@@ -1,9 +1,8 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Slide } from "yet-another-react-lightbox";
 import { galleryItems, type GalleryItem } from "../data/gallery";
@@ -87,10 +86,12 @@ export function Gallery() {
           Captured in Tinycast
           <span className="ml-auto hidden sm:inline">Click any to enlarge</span>
         </div>
-        {/* The tour video leads at double size; the stills fill in around it. */}
+        {/* The tour video leads at double size and the last still runs double
+            width, so the stills fill every row without a gap. */}
         <div className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-4">
           {galleryItems.map((item, i) => {
             const isLead = i === 0;
+            const isLast = i === galleryItems.length - 1;
             return (
               <button
                 key={`${item.title}-${i}`}
@@ -99,12 +100,13 @@ export function Gallery() {
                 className={cn(
                   "group flex flex-col gap-2 text-left",
                   isLead && "sm:col-span-2 lg:row-span-2",
+                  isLast && "sm:col-span-2",
                 )}
               >
                 <figure
                   className={cn(
                     "relative aspect-video w-full overflow-hidden rounded-lg ring-1 ring-border/60 transition-shadow duration-200 group-hover:ring-border-strong",
-                    isLead && "lg:aspect-auto lg:flex-1",
+                    (isLead || isLast) && "lg:aspect-auto lg:flex-1",
                   )}
                 >
                   <Image
@@ -112,7 +114,7 @@ export function Gallery() {
                     alt={item.title}
                     fill
                     sizes={
-                      isLead
+                      isLead || isLast
                         ? "(min-width: 640px) 50vw, 90vw"
                         : "(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
                     }
@@ -135,30 +137,6 @@ export function Gallery() {
               </button>
             );
           })}
-          <Link
-            href="/docs"
-            className="group flex min-h-40 flex-col justify-between rounded-lg border border-dashed border-border-strong p-5 transition-colors hover:border-violet-bright"
-          >
-            <BookOpen
-              size={22}
-              strokeWidth={1.7}
-              className="text-violet-bright"
-              aria-hidden="true"
-            />
-            <span>
-              <span className="flex items-center gap-1 text-body font-medium text-fg">
-                Read the docs
-                <ArrowUpRight
-                  size={15}
-                  aria-hidden="true"
-                  className="text-fg-subtle transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                />
-              </span>
-              <span className="mt-0.5 block text-small text-fg-muted">
-                Every feature has its own page.
-              </span>
-            </span>
-          </Link>
         </div>
       </div>
 
