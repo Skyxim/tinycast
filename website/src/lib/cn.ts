@@ -20,6 +20,8 @@ const twMerge = extendTailwindMerge({
             "subheading",
             "stat",
             "heading",
+            "demo-query",
+            "demo-row",
             "closing",
             "display",
           ],

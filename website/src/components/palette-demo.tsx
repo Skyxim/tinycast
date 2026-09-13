@@ -54,8 +54,8 @@ function usePrefersReducedMotion() {
   );
 }
 
-// Typing and advancing both stop while the demo is off screen, so a reader
-// who scrolls back finds it where they left it rather than mid-way through.
+// Typing and advancing stop while the demo is off screen, so it costs nothing
+// out of view and resumes where it left off.
 function useIsOnScreen(ref: RefObject<HTMLElement | null>) {
   const [isOnScreen, setIsOnScreen] = useState(false);
 
@@ -74,7 +74,7 @@ function useIsOnScreen(ref: RefObject<HTMLElement | null>) {
 
 function Keycap({ children }: { children: string }) {
   return (
-    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-md bg-white/10 px-1 text-caption text-white/70 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]">
+    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-lg border border-(--glass-key-border) px-1 text-caption text-(--glass-fg-muted)">
       {children}
     </span>
   );
@@ -93,21 +93,21 @@ function ResultRow({
   return (
     <li
       className={cn(
-        "demo-row flex items-center gap-3 rounded-xl px-3 py-2.5",
-        isSelected && "bg-white/10",
+        "demo-row flex items-center gap-3 rounded-2xl px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3",
+        isSelected && "glass-chip",
       )}
-      style={{ animationDelay: `${order * 60}ms` }}
+      style={{ animationDelay: `${order * 70}ms` }}
     >
       <span
-        className="flex size-7 shrink-0 items-center justify-center rounded-lg text-white"
+        className="flex size-7 shrink-0 items-center justify-center rounded-[0.6rem] text-white shadow-sm sm:size-9 sm:rounded-xl"
         style={{ background: row.tint }}
       >
         <Icon size={15} />
       </span>
-      <span className="min-w-0 flex-1 truncate text-body text-white/90">
+      <span className="min-w-0 flex-1 truncate text-demo-row text-(--glass-fg)">
         {row.title}
       </span>
-      <span className="hidden text-small text-white/40 sm:block">
+      <span className="hidden text-demo-row text-(--glass-fg-subtle) sm:block">
         {row.kind}
       </span>
     </li>
@@ -131,12 +131,12 @@ function SceneBody({ scene }: { scene: DemoScene }) {
       );
     case "calculator":
       return (
-        <div className="demo-row grid h-24 grid-cols-[1fr_auto_1fr] items-center rounded-xl bg-white/10 px-4 text-center sm:h-28">
-          <span className="text-body-lg text-white/55 sm:text-subheading">
+        <div className="demo-row glass-chip grid h-24 grid-cols-[1fr_auto_1fr] items-center rounded-3xl px-4 text-center sm:h-36">
+          <span className="text-demo-query text-(--glass-fg-muted)">
             {scene.from}
           </span>
-          <ArrowRight size={18} className="text-white/40" />
-          <span className="text-body-lg font-semibold text-white sm:text-subheading">
+          <ArrowRight size={18} className="text-(--glass-fg-subtle)" />
+          <span className="text-demo-query font-semibold text-(--glass-fg)">
             {scene.to}
           </span>
         </div>
@@ -148,10 +148,10 @@ function SceneBody({ scene }: { scene: DemoScene }) {
             <li
               key={glyph}
               className={cn(
-                "demo-row flex aspect-square items-center justify-center rounded-xl bg-white/5 text-heading",
-                order === 0 && "bg-white/15 ring-1 ring-white/20",
+                "demo-row flex aspect-square items-center justify-center rounded-3xl text-heading lg:text-closing",
+                order === 0 ? "glass-chip" : "bg-(--glass-chip-soft)",
               )}
-              style={{ animationDelay: `${order * 35}ms` }}
+              style={{ animationDelay: `${order * 40}ms` }}
             >
               {glyph}
             </li>
@@ -177,15 +177,21 @@ function Palette({
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto flex h-88 w-full max-w-176 flex-col rounded-[1.4rem] bg-[#161618]/85 p-2 text-left shadow-palette ring-1 ring-white/15 ring-inset backdrop-blur-2xl sm:h-100"
+      className="glass-palette flex h-100 w-full flex-col rounded-[2.25rem] p-3 text-left sm:h-128 lg:h-150"
     >
-      <div className="flex items-center gap-3 px-3 pb-2 pt-3">
-        <LeadingIcon size={20} className="shrink-0 text-white/50" />
-        <span className="flex min-w-0 items-center text-body-lg text-white sm:text-subheading">
+      <span aria-hidden="true" className="glass-grain" />
+      <div className="flex items-center gap-3 px-3 pb-3 pt-3 sm:gap-4 sm:px-4 sm:pt-4">
+        <LeadingIcon
+          size={24}
+          className="size-5 shrink-0 text-(--glass-fg-subtle) sm:size-6"
+        />
+        <span className="flex min-w-0 items-center text-demo-query text-(--glass-fg)">
           {query ? (
             <span className="truncate">{query}</span>
           ) : (
-            <span className="truncate text-white/35">{scene.placeholder}</span>
+            <span className="truncate text-(--glass-fg-subtle)">
+              {scene.placeholder}
+            </span>
           )}
           <span
             className={cn(
@@ -200,7 +206,7 @@ function Palette({
       <div key={sceneIndex} className="min-h-0 flex-1 overflow-hidden px-1">
         {hasFinishedTyping && (
           <>
-            <p className="demo-row px-3 pb-1.5 pt-2 text-caption font-semibold text-white/45">
+            <p className="demo-row px-3 pb-2 pt-2 text-small font-semibold text-(--glass-fg-subtle) sm:px-4">
               {scene.section}
             </p>
             <SceneBody scene={scene} />
@@ -209,15 +215,15 @@ function Palette({
       </div>
 
       <div className="flex items-center justify-between gap-2 px-1 pb-1">
-        <span className="flex size-9 items-center justify-center rounded-full border border-white/10 text-white/50">
+        <span className="flex size-9 sm:size-11 items-center justify-center rounded-full border border-(--glass-key-border) text-(--glass-fg-muted)">
           <Ellipsis size={16} />
         </span>
-        <span className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-4 pr-2 text-small">
-          <span className="flex items-center gap-2 font-medium text-white">
+        <span className="glass-chip flex items-center gap-3 rounded-full py-1.5 pl-4 pr-2 text-small sm:gap-5 sm:py-2 sm:pl-5 sm:pr-2.5 sm:text-body">
+          <span className="flex items-center gap-2 font-medium text-(--glass-fg)">
             {scene.action}
             <Keycap>↵</Keycap>
           </span>
-          <span className="hidden items-center gap-2 text-white/60 sm:flex">
+          <span className="hidden items-center gap-2 text-(--glass-fg-muted) sm:flex">
             Actions
             <span className="flex gap-1">
               <Keycap>⌘</Keycap>
@@ -275,7 +281,8 @@ export function PaletteDemo() {
         A recreation of the Tinycast palette, cycling through opening an app,
         converting units, pasting from clipboard history and finding an emoji.
       </p>
-      <div className="bg-brand-gradient flex w-full items-center justify-center overflow-hidden rounded-xl px-3 py-8 sm:aspect-16/10 sm:p-[5%]">
+      <div className="relative">
+        <span aria-hidden="true" className="glass-backing" />
         <Palette
           scene={scene}
           sceneIndex={sceneIndex}
