@@ -330,9 +330,8 @@
   /* Transparent over the hero, glass once the page moves. Browsers without
      scroll timelines, and reduced motion, skip the fade and keep the glass. */
   .header-veil {
-    background-color: color-mix(in srgb, var(--color-canvas) 80%, transparent);
-    border-color: color-mix(in srgb, var(--color-border) 60%, transparent);
-    backdrop-filter: blur(24px);
+    background-color: color-mix(in srgb, var(--color-canvas) 78%, transparent);
+    backdrop-filter: blur(20px) saturate(1.4);
   }
 
   @supports (animation-timeline: scroll()) {
@@ -456,7 +455,6 @@
 @keyframes header-veil {
   from {
     background-color: transparent;
-    border-color: transparent;
   }
 }
 

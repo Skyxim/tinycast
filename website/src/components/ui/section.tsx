@@ -15,22 +15,6 @@ type SectionProps = {
   tone?: "plain" | "ink";
 };
 
-// A crosshair where a section's top rule meets the page's side rails.
-function CornerMark({ side }: { side: "left" | "right" }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none absolute -top-1.25 z-10 hidden size-2.25 sm:block",
-        side === "left" ? "-left-1.25" : "-right-1.25",
-      )}
-    >
-      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-fg/30" />
-      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-fg/30" />
-    </span>
-  );
-}
-
 export function SectionLabel({
   index,
   label,
@@ -83,15 +67,7 @@ export function Section({
   );
 
   return (
-    <section
-      id={id}
-      className={cn(
-        "relative border-t border-border/60",
-        isInk && "bg-ink text-ink-fg",
-      )}
-    >
-      {!isInk && <CornerMark side="left" />}
-      {!isInk && <CornerMark side="right" />}
+    <section id={id} className={cn("relative", isInk && "bg-ink text-ink-fg")}>
       <div className="px-5 py-20 sm:px-10 sm:py-24">
         {layout === "split" ? (
           <div className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-20">

@@ -15,8 +15,7 @@ export default function HomePage() {
   return (
     <>
       <Nav />
-      {/* One framed column: side rails here, a top rule on every section. */}
-      <main className="mx-auto max-w-6xl border-border/60 sm:border-x">
+      <main className="mx-auto max-w-6xl">
         <Hero />
         <Features />
         <Gallery />

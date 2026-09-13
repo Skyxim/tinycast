@@ -4,7 +4,7 @@ import { AppleLogo } from "./ui/icon";
 
 export function Closing() {
   return (
-    <section className="relative overflow-hidden border-t border-border/60">
+    <section className="relative overflow-hidden">
       <div className="px-5 pt-20 text-center sm:px-10 sm:pt-28">
         <span
           aria-hidden="true"

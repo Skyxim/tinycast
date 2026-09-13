@@ -13,8 +13,8 @@ type ButtonProps = {
 } & Omit<ComponentProps<typeof Link>, "href">;
 
 const variants: Record<Variant, string> = {
-  // Neutral ink, never violet: the brand colour is kept for small marks.
-  primary: "bg-fg text-canvas hover:bg-fg/80",
+  // The brand violet marks the one action that matters: getting the app.
+  primary: "bg-violet text-white hover:bg-violet-deep",
   ghost: "text-fg-muted hover:bg-tint/5 hover:text-fg",
   outline:
     "border border-border text-fg-muted hover:border-border-strong hover:text-fg",
