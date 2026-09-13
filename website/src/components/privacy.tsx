@@ -32,7 +32,7 @@ function SwitchGlyph({ isOn }: { isOn: boolean }) {
 function SwitchCard({ icon, name, note, isOn }: DefaultSwitch) {
   const Icon = featureIcons[icon];
   return (
-    <li className="flex flex-col rounded-xl bg-tint/4 p-4">
+    <li className="flex flex-col rounded-xl bg-canvas p-4">
       <span className="flex items-center justify-between">
         <span
           className={cn(
@@ -76,36 +76,29 @@ export function Privacy() {
         ))}
       </dl>
 
-      <div className="relative mt-6">
-        {/* A soft brand glow, so the panel reads as the app rather than a table. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-10 -inset-y-6 -z-10 rounded-full bg-violet/10 blur-3xl"
-        />
-        <figure className="rounded-2xl bg-surface p-2 shadow-window">
-          <figcaption className="flex items-center justify-between gap-3 px-3 pb-3 pt-2.5">
-            <span className="text-small font-medium text-fg">
-              Settings, on a fresh install
-            </span>
-            <span className="rounded-full bg-violet/15 px-2.5 py-0.5 text-caption font-medium text-violet-bright">
-              {offCount} of {defaultSwitches.length} off
-            </span>
-          </figcaption>
-          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-            {defaultSwitches.map((item) => (
-              <SwitchCard key={item.name} {...item} />
-            ))}
-          </ul>
-          <p className="flex gap-3 px-3 pb-2 pt-4 text-small text-fg-muted">
-            <ShieldCheck
-              size={16}
-              className="mt-0.5 shrink-0 text-violet-bright"
-              aria-hidden="true"
-            />
-            {permissionNote}
-          </p>
-        </figure>
-      </div>
+      <figure className="mt-4 rounded-2xl bg-tint/4 p-2">
+        <figcaption className="flex items-center justify-between gap-3 px-3 pb-3 pt-2.5">
+          <span className="text-small font-medium text-fg">
+            Settings, on a fresh install
+          </span>
+          <span className="rounded-full bg-kbd-bg px-2.5 py-0.5 text-caption font-medium text-kbd">
+            {offCount} of {defaultSwitches.length} off
+          </span>
+        </figcaption>
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {defaultSwitches.map((item) => (
+            <SwitchCard key={item.name} {...item} />
+          ))}
+        </ul>
+        <p className="flex gap-3 px-3 pb-2 pt-4 text-small text-fg-muted">
+          <ShieldCheck
+            size={16}
+            className="mt-0.5 shrink-0 text-violet-bright"
+            aria-hidden="true"
+          />
+          {permissionNote}
+        </p>
+      </figure>
     </Section>
   );
 }
