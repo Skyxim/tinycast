@@ -1,13 +1,14 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { ArrowUpRight, BookOpen, Play } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Slide } from "yet-another-react-lightbox";
 import { galleryItems, type GalleryItem } from "../data/gallery";
 import { asset } from "../lib/asset";
-import { Reveal } from "./ui/reveal";
+import { cn } from "../lib/cn";
 import { Section } from "./ui/section";
 
 // The lightbox is ~30 KB gzipped and does nothing until a tile is clicked.
@@ -72,43 +73,93 @@ export function Gallery() {
   return (
     <Section
       id="gallery"
-      eyebrow="Tinycast in action"
-      title="See it in motion."
-      intro="A palette that stays out of your way — until you need it."
+      index={2}
+      label="In action"
+      title="The real app, not a mockup."
+      intro="The palette up top is a recreation. These are captured from Tinycast itself. Open any of them full size."
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {galleryItems.map((item, i) => (
-          <Reveal key={`${item.title}-${i}`} delay={i * 60}>
-            <button
-              type="button"
-              onClick={() => open(i)}
-              className="group flex h-full w-full flex-col gap-3 rounded-2xl bg-surface/40 p-3 text-left shadow-key transition-shadow duration-200 hover:shadow-key-hover"
-            >
-              <figure className="relative aspect-video w-full overflow-hidden rounded-xl">
-                <Image
-                  src={tileImage(item)}
-                  alt={item.title}
-                  fill
-                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                />
-                {item.type === "video" && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex size-12 items-center justify-center rounded-full bg-black/40 text-white shadow-highlight backdrop-blur-sm">
-                      <Play size={20} fill="currentColor" />
-                    </span>
-                  </span>
+      <div className="overflow-hidden rounded-xl border border-border/70 bg-surface shadow-xs">
+        <div className="flex min-h-11 items-center gap-3 border-b border-border/60 px-4 py-1.5 font-mono text-micro uppercase text-fg-muted">
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-violet"
+          />
+          Captured in Tinycast
+          <span className="ml-auto hidden sm:inline">Click any to enlarge</span>
+        </div>
+        {/* The tour video leads at double size; the stills fill in around it. */}
+        <div className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-4">
+          {galleryItems.map((item, i) => {
+            const isLead = i === 0;
+            return (
+              <button
+                key={`${item.title}-${i}`}
+                type="button"
+                onClick={() => open(i)}
+                className={cn(
+                  "group flex flex-col gap-2 text-left",
+                  isLead && "sm:col-span-2 lg:row-span-2",
                 )}
-              </figure>
-              <div className="px-1 pb-1">
-                <h3 className="text-body-lg font-medium text-fg">
-                  {item.title}
-                </h3>
-                <p className="mt-1 text-body text-fg-muted">{item.caption}</p>
-              </div>
-            </button>
-          </Reveal>
-        ))}
+              >
+                <figure
+                  className={cn(
+                    "relative aspect-video w-full overflow-hidden rounded-lg ring-1 ring-border/60 transition-shadow duration-200 group-hover:ring-border-strong",
+                    isLead && "lg:aspect-auto lg:flex-1",
+                  )}
+                >
+                  <Image
+                    src={tileImage(item)}
+                    alt={item.title}
+                    fill
+                    sizes={
+                      isLead
+                        ? "(min-width: 640px) 50vw, 90vw"
+                        : "(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
+                    }
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                  {item.type === "video" && (
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <span className="flex size-16 items-center justify-center rounded-full bg-fg text-canvas transition-transform duration-200 group-hover:scale-105">
+                        <Play size={24} fill="currentColor" />
+                      </span>
+                    </span>
+                  )}
+                </figure>
+                <div>
+                  <h3 className="text-small font-medium text-fg">
+                    {item.title}
+                  </h3>
+                  <p className="text-small text-fg-muted">{item.caption}</p>
+                </div>
+              </button>
+            );
+          })}
+          <Link
+            href="/docs"
+            className="group flex min-h-40 flex-col justify-between rounded-lg border border-dashed border-border-strong p-5 transition-colors hover:border-violet-bright"
+          >
+            <BookOpen
+              size={22}
+              strokeWidth={1.7}
+              className="text-violet-bright"
+              aria-hidden="true"
+            />
+            <span>
+              <span className="flex items-center gap-1 text-body font-medium text-fg">
+                Read the docs
+                <ArrowUpRight
+                  size={15}
+                  aria-hidden="true"
+                  className="text-fg-subtle transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </span>
+              <span className="mt-0.5 block text-small text-fg-muted">
+                Every feature has its own page.
+              </span>
+            </span>
+          </Link>
+        </div>
       </div>
 
       {everOpened && (

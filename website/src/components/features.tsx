@@ -1,53 +1,54 @@
-import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { features } from "../data/features";
-import type { Feature } from "../data/features";
-import { featureIcons } from "./ui/feature-icons";
-import { Reveal } from "./ui/reveal";
+import { coreFeatures, moreFeatures } from "../data/features";
 import { Section } from "./ui/section";
-
-function FeatureCard({ icon, title, body, href }: Feature) {
-  const Icon = featureIcons[icon];
-  return (
-    <Link
-      href={href}
-      className="group flex h-full flex-col gap-4 rounded-2xl bg-surface/40 p-4 shadow-key transition-shadow duration-200 hover:shadow-key-hover sm:p-6"
-    >
-      <span className="flex size-11 items-center justify-center rounded-full bg-tint/5 text-violet-bright shadow-highlight transition-colors group-hover:bg-violet/10">
-        <Icon size={22} strokeWidth={1.6} />
-      </span>
-      <h3 className="flex items-center gap-1.5 text-subheading font-medium text-fg">
-        {title}
-        <ArrowUpRight
-          size={16}
-          strokeWidth={2}
-          aria-hidden="true"
-          className="text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100"
-        />
-      </h3>
-      <p className="text-body text-fg-muted">{body}</p>
-    </Link>
-  );
-}
 
 export function Features() {
   return (
     <Section
       id="features"
-      eyebrow="What it does"
-      title="Everything you reach for, one keystroke away."
-      intro="One palette, and almost everything in it stays off until you ask for it. Every card links to its documentation."
+      index={1}
+      label="Features"
+      title="One palette for everything you do all day."
+      intro="Almost everything ships off until you ask for it, so Tinycast is exactly as big as you make it. Each item links to its page in the docs."
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map((feature, i) => (
-          <Reveal
+      <div className="grid sm:grid-cols-2 sm:gap-x-12">
+        {coreFeatures.map((feature, i) => (
+          <Link
             key={feature.title}
-            delay={Math.min(i, 6) * 60}
-            className={feature.wide ? "sm:col-span-2" : undefined}
+            href={feature.href}
+            className="group grid grid-cols-[2.25rem_1fr] gap-x-4 border-t border-border/60 py-6"
           >
-            <FeatureCard {...feature} />
-          </Reveal>
+            <span className="font-mono text-eyebrow leading-6 tracking-normal text-fg-subtle tabular-nums transition-colors group-hover:text-violet-bright">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span>
+              <h3 className="text-body font-medium leading-6 tracking-tight">
+                {feature.title}
+              </h3>
+              <p className="mt-1.5 max-w-md text-small text-fg-muted">
+                {feature.body}
+              </p>
+            </span>
+          </Link>
         ))}
+      </div>
+
+      <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:gap-10">
+        <p className="shrink-0 font-mono text-micro uppercase leading-6 text-fg-muted">
+          Also in the box
+        </p>
+        <ul className="flex flex-wrap gap-x-5 gap-y-2">
+          {moreFeatures.map(({ title, href }) => (
+            <li key={title}>
+              <Link
+                href={href}
+                className="text-small text-fg-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-fg hover:decoration-violet-bright"
+              >
+                {title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   );

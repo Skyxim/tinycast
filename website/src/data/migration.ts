@@ -3,7 +3,6 @@
 // `RaycastImportOptions` exactly — don't add anything the importer can't carry.
 
 export const migration = {
-  eyebrow: "Already set up elsewhere?",
   title: "Bring your setup with you.",
   intro:
     "Tinycast reads a Raycast export directly. Point it at your .rayconfig file, type the passphrase, and pick what comes across — no redoing shortcuts by hand.",

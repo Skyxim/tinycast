@@ -10,6 +10,7 @@ const twMerge = extendTailwindMerge({
       "font-size": [
         {
           text: [
+            "micro",
             "eyebrow",
             "caption",
             "key",
@@ -19,13 +20,23 @@ const twMerge = extendTailwindMerge({
             "subheading",
             "stat",
             "heading",
+            "closing",
             "display",
+            "wordmark",
           ],
         },
       ],
       shadow: [
         {
-          shadow: ["key", "key-hover", "highlight", "keycap", "cta", "window"],
+          shadow: [
+            "key",
+            "key-hover",
+            "highlight",
+            "keycap",
+            "cap",
+            "palette",
+            "window",
+          ],
         },
       ],
     },

@@ -1,45 +1,110 @@
 import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { Reveal } from "./reveal";
 
 type SectionProps = {
-  id?: string;
-  eyebrow?: string;
-  title?: ReactNode;
+  id: string;
+  /** Position on the page, shown as "01". Sections are read top to bottom. */
+  index: number;
+  label: string;
+  title: ReactNode;
   intro?: ReactNode;
   children: ReactNode;
-  className?: string;
+  /** `split` puts the heading in a narrow left column beside the content. */
+  layout?: "stacked" | "split";
+  /** `ink` inverts the band, for the one section that should stop the scroll. */
+  tone?: "plain" | "ink";
 };
 
-// A contained page section with the shared vertical rhythm and an optional
-// eyebrow/title/intro header (which rises into view on scroll). Keeps every
-// band spaced and aligned identically.
+// A crosshair where a section's top rule meets the page's side rails.
+function CornerMark({ side }: { side: "left" | "right" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none absolute -top-1.25 z-10 hidden size-2.25 sm:block",
+        side === "left" ? "-left-1.25" : "-right-1.25",
+      )}
+    >
+      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-fg/30" />
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-fg/30" />
+    </span>
+  );
+}
+
+export function SectionLabel({
+  index,
+  label,
+  tone = "plain",
+}: {
+  index: number;
+  label: string;
+  tone?: "plain" | "ink";
+}) {
+  return (
+    <p className="flex items-baseline gap-2.5 font-mono text-eyebrow uppercase">
+      <span className="text-violet-bright">
+        {String(index).padStart(2, "0")}
+      </span>
+      <span className={tone === "ink" ? "text-ink-fg/50" : "text-fg-muted"}>
+        {label}
+      </span>
+    </p>
+  );
+}
+
 export function Section({
   id,
-  eyebrow,
+  index,
+  label,
   title,
   intro,
   children,
-  className,
+  layout = "stacked",
+  tone = "plain",
 }: SectionProps) {
-  return (
-    <section id={id} className={cn("container-page py-16 md:py-24", className)}>
-      {(eyebrow || title || intro) && (
-        <Reveal>
-          <header className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
-            {eyebrow && (
-              <p className="mb-4 font-mono text-eyebrow uppercase text-violet-bright">
-                {eyebrow}
-              </p>
-            )}
-            {title && <h2 className="text-heading">{title}</h2>}
-            {intro && (
-              <p className="mt-4 text-body-lg text-fg-muted">{intro}</p>
-            )}
-          </header>
-        </Reveal>
+  const isInk = tone === "ink";
+  const header = (
+    <div className="max-w-2xl">
+      <SectionLabel index={index} label={label} tone={tone} />
+      <h2 className={cn("mt-4 text-heading", isInk && "text-ink-fg")}>
+        {title}
+      </h2>
+      {intro && (
+        <p
+          className={cn(
+            "mt-4 max-w-xl text-pretty text-body-lg",
+            isInk ? "text-ink-fg/60" : "text-fg-muted",
+          )}
+        >
+          {intro}
+        </p>
       )}
-      {children}
+    </div>
+  );
+
+  return (
+    <section
+      id={id}
+      className={cn(
+        "relative border-t border-border/60",
+        isInk && "bg-ink text-ink-fg",
+      )}
+    >
+      {!isInk && <CornerMark side="left" />}
+      {!isInk && <CornerMark side="right" />}
+      <div className="px-5 py-20 sm:px-10 sm:py-24">
+        {layout === "split" ? (
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-20">
+            {header}
+            <div>{children}</div>
+          </div>
+        ) : (
+          <>
+            {header}
+            <div className="mt-12">{children}</div>
+          </>
+        )}
+      </div>
     </section>
   );
 }

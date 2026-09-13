@@ -20,16 +20,18 @@ export const site = {
 
 // The hero, in as few words as possible — headline plus one punchy line.
 export const hero = {
-  eyebrow: "Native macOS launcher",
-  headline: "Everything on your Mac. One keystroke away.",
+  // One entry per line: the break falls between the two sentences at every width.
+  headlineLines: ["Everything on your Mac.", "One keystroke away."],
   sub: "A tiny, native launcher. No Electron. No account. No telemetry. No bullshit.",
+  // The mono line under the buttons. Each fact is stated in the docs.
+  facts: ["Under 100 MB of memory", "Zero dependencies", "Free & open source"],
 } as const;
 
 export const nav = [
-  { label: "Gallery", href: "/#gallery" },
   { label: "Features", href: "/#features" },
+  { label: "Privacy", href: "/#privacy" },
+  { label: "FAQ", href: "/#faq" },
   { label: "Docs", href: "/docs" },
-  { label: "Install", href: "/#install" },
 ] as const;
 
 // Homebrew install channels. Each is a separate app that runs side by side,
@@ -69,10 +71,3 @@ export const channels = [
 // and update, so the Homebrew path needs no manual step at all.
 export const quarantineCommand =
   'xattr -dr com.apple.quarantine "/Applications/Tinycast.app"';
-
-// Headline numbers for the "why it's tiny" band. Kept honest, from the README.
-export const stats = [
-  { value: "<100", unit: "MB", label: "Memory" },
-  { value: "0", unit: "", label: "Dependencies" },
-  { value: "0", unit: "", label: "Telemetry" },
-] as const;

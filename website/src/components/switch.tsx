@@ -1,85 +1,82 @@
-import { Check } from "lucide-react";
 import Image from "next/image";
 import { migration } from "../data/migration";
 import { asset } from "../lib/asset";
 import { Button } from "./ui/button";
-import { Reveal } from "./ui/reveal";
+import { Section } from "./ui/section";
 
-// Deliberately not a <Section>: the copy is left-aligned against the shot,
-// and this reads as a practical note rather than a headline band.
 export function Switch() {
   return (
-    <section id="switch" className="container-page py-16 md:py-24">
-      <Reveal>
-        <div className="grid items-center gap-10 rounded-2xl bg-surface/40 p-6 shadow-key sm:p-10 lg:grid-cols-2 lg:gap-14">
-          <div>
-            <p className="font-mono text-eyebrow uppercase text-violet-bright">
-              {migration.eyebrow}
-            </p>
-            <h2 className="mt-4 text-heading">{migration.title}</h2>
-            <p className="mt-4 text-body text-fg-muted">{migration.intro}</p>
-
-            <ol className="mt-7 flex flex-col gap-4">
-              {migration.steps.map((step, i) => (
-                <li key={step.title} className="flex gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet/15 font-mono text-caption text-violet-bright"
-                  >
-                    {i + 1}
-                  </span>
-                  <span>
-                    <span className="block text-body font-medium text-fg">
-                      {step.title}
-                    </span>
-                    <span className="block text-body text-fg-muted">
-                      {step.body}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-
-            <p className="mt-7 font-mono text-eyebrow uppercase text-fg-subtle">
-              Comes across
-            </p>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {migration.transfers.map((item) => (
-                <li
-                  key={item}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-tint/5 px-2.5 py-1.5 text-small text-fg-muted shadow-keycap"
-                >
-                  <Check
-                    size={12}
-                    strokeWidth={2.4}
-                    className="text-violet-bright"
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              href="/docs/reference/import-from-raycast"
-              variant="ghost"
-              size="sm"
-              className="mt-7"
-            >
-              Read the import guide
-            </Button>
-          </div>
-
-          <figure className="overflow-hidden rounded-xl shadow-window">
-            <Image
-              src={asset("import.png")}
-              width={1800}
-              height={1192}
-              alt="Tinycast's Backup settings pane with a Raycast export selected and a list of categories to import."
-              className="block h-auto w-full"
-            />
-          </figure>
+    <Section
+      id="switch"
+      index={5}
+      label="Moving over"
+      title={migration.title}
+      intro={migration.intro}
+    >
+      <figure className="overflow-hidden rounded-xl border border-border/70 bg-surface shadow-xs">
+        <figcaption className="flex min-h-11 items-center gap-3 border-b border-border/60 px-4 py-1.5 font-mono text-micro uppercase text-fg-muted">
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-violet"
+          />
+          Settings → Backup → Raycast export
+        </figcaption>
+        <div className="bg-brand-gradient p-4 sm:p-6 lg:p-8">
+          <Image
+            src={asset("import.png")}
+            width={1800}
+            height={1192}
+            alt="Tinycast's Backup settings pane with a Raycast export selected and a list of categories to import."
+            className="mx-auto block h-auto w-full max-w-2xl rounded-lg shadow-palette"
+          />
         </div>
-      </Reveal>
-    </section>
+      </figure>
+
+      {/* A real sequence, so these carry numbers. */}
+      <ol className="mt-12 grid sm:grid-cols-3 sm:gap-x-12">
+        {migration.steps.map((step, i) => (
+          <li
+            key={step.title}
+            className="grid grid-cols-[2.25rem_1fr] gap-x-4 border-t border-border/60 py-6"
+          >
+            <span className="font-mono text-eyebrow leading-6 tracking-normal text-violet-bright tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span>
+              <span className="block text-body font-medium leading-6 tracking-tight text-fg">
+                {step.title}
+              </span>
+              <span className="mt-1.5 block text-small text-fg-muted">
+                {step.body}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:gap-10">
+        <p className="shrink-0 font-mono text-micro uppercase leading-6 text-fg-muted">
+          Comes across
+        </p>
+        <ul className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-micro uppercase leading-6 text-fg-muted">
+          {migration.transfers.map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <span aria-hidden="true" className="text-violet-bright">
+                +
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Button
+        href="/docs/reference/import-from-raycast"
+        variant="outline"
+        className="mt-8"
+      >
+        Read the import guide
+      </Button>
+    </Section>
   );
 }
