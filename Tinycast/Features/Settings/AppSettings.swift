@@ -233,16 +233,23 @@ final class AppSettings {
         didSet { defaults.set(paletteDraggable, forKey: Key.paletteDraggable.rawValue) }
     }
 
-    /// Where a drag left the panel's top-left; nil means the default placement.
-    var palettePosition: CGPoint? {
-        didSet {
-            guard let palettePosition else {
-                defaults.removeObject(forKey: Key.palettePosition.rawValue)
-                return
-            }
-            defaults.set(
-                [palettePosition.x, palettePosition.y], forKey: Key.palettePosition.rawValue)
+    /// Where a drag left the panel's top-left, one entry per display arrangement.
+    var palettePositions: [String: [Double]] {
+        didSet { defaults.set(palettePositions, forKey: Key.palettePosition.rawValue) }
+    }
+
+    /// The top-left remembered for one arrangement; nil means the default placement.
+    func palettePosition(on arrangement: String) -> CGPoint? {
+        palettePositions[arrangement].flatMap { $0.count == 2 ? CGPoint(x: $0[0], y: $0[1]) : nil }
+    }
+
+    /// Kept per arrangement, so an earlier one is remembered when the user gets back to it.
+    func setPalettePosition(_ anchor: CGPoint?, on arrangement: String) {
+        guard let anchor else {
+            palettePositions.removeValue(forKey: arrangement)
+            return
         }
+        palettePositions[arrangement] = [anchor.x, anchor.y]
     }
 
     // Feature switches, off out of the box, and off means fully off.
@@ -543,9 +550,9 @@ final class AppSettings {
             || defaults.bool(forKey: Key.openOnCursorScreen.rawValue)
         autoSwitchInputSourceID = defaults.string(forKey: Key.autoSwitchInputSource.rawValue)
         paletteDraggable = defaults.bool(forKey: Key.paletteDraggable.rawValue)
-        // A half-written pair is no position at all, so both coordinates have to be there.
-        palettePosition = (defaults.array(forKey: Key.palettePosition.rawValue) as? [Double])
-            .flatMap { $0.count == 2 ? CGPoint(x: $0[0], y: $0[1]) : nil }
+        // An array here is the single point an older build wrote; this shape is a dictionary.
+        palettePositions = defaults.dictionary(forKey: Key.palettePosition.rawValue)
+            as? [String: [Double]] ?? [:]
         fileSearchEnabled = defaults.bool(forKey: Key.fileSearchEnabled.rawValue)
         // Unset seeds home; a stored empty array is a cleared list that searches nothing.
         fileSearchScopes =

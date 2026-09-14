@@ -239,8 +239,8 @@ fact as a parameter, so `palette-placement-test` drives the shipped rules rather
 The panel's width and height are not constants: they come from `InterfaceMetrics`, so Interface Size
 changes them. A change re-enters through `AppCore.track` → `applyInterfaceSize()`, which **drops the
 cached anchor** and re-resolves it — one rule, the summon's. An untouched palette re-centres at the new
-width; a dragged one keeps its stored top-left unless the wider bar no longer leaves
-`paletteMinimumVisible` on any display, in which case it falls home.
+width; a dragged one keeps the corner its display remembers unless the wider bar no longer leaves
+`paletteMinimumVisible` of itself on that display, in which case it falls home.
 
 ### Drag to reposition
 
@@ -283,17 +283,37 @@ default placement, which is what a snap would then land on.
 
 ### Remembering where it was left
 
-A drop that isn't a snap writes the anchor to `AppSettings.palettePosition`, and the next summon reopens
-there — across relaunches, since it is a persisted setting. **A remembered position outranks the display
-setting below**; `PalettePlacement.restored` drops it only when no display still shows
-`Theme.Size.paletteMinimumVisible` of the compact bar, which is what a disconnected screen or a
-resolution change leaves behind. Snapping onto the guides clears the stored position, so the guides
-double as the way back to default behaviour.
+A drop that isn't a snap writes the panel's **top-left corner** to `AppSettings.palettePositions`,
+filed under `PalettePlacement.arrangementKey` — the display's identity (`NSScreen.displayUUID`, the
+same `CGDisplayCreateUUIDFromDisplayID` identity window layouts name a display by) paired with the
+arrangement it is in. A display that reports no identity files under the arrangement alone, so it
+still remembers its place. A summon looks up the corner for the display it is opening on, arranged as
+it is right now, so a drop comes back on the screen it was made on and is never read onto a
+neighbour. The corner is absolute — nothing is scaled to a display's own size — so the numbers read
+back exactly as they were written.
+
+**Entries accumulate rather than overwrite.** Unplugging a display, moving it in the arrangement or
+changing its scaling names a new key and keeps the old one, so returning to an earlier setup finds the
+position it had then. That is the shape of Raycast's own `mainWindowPositionCache`, whose keys are the
+display's frame (plus the display count) and whose entries survive every layout change. Nothing prunes
+them: an entry is two doubles, and a key naming a display that never comes back costs nothing. Adding
+the display's own identity to the key is what carries a position across a replug: the same display in
+the same arrangement finds its entry however the machine was restarted.
+
+The corner is what is stored, and it is what the frame hangs from: the panel grows down and to the
+right of it, so a taller palette never moves its own top edge, and the same numbers put it back on the
+display that owns the entry. A drag can leave the panel over an edge, so the point is not clamped;
+`PalettePlacement.restored` drops it only when less than `Theme.Size.paletteMinimumVisible` of the
+compact bar would stay grabbable. Snapping onto the guides clears that entry, so the guides double as
+the way back to default behaviour — and a display that has never been dragged on opens home.
+
+The *display* is still chosen by the setting below before any of this: a remembered corner belongs to
+the display it opens on, and does not drag the palette to another screen.
 
 The position is deliberately **not** in a settings backup — it is machine-local geometry, the same
 reason the Settings window autosaves its frame instead ([backup.md](backup.md)).
 
-Which display an *unremembered* palette anchors to depends on the **Follow the cursor across displays**
+Which display the palette anchors to depends on the **Follow the cursor across displays**
 setting (`AppSettings.openOnCursorScreen`, on by default):
 
 - **On** — `NSScreen.underCursor`: the screen holding `NSEvent.mouseLocation`, i.e. the display under

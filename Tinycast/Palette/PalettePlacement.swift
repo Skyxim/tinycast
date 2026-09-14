@@ -13,18 +13,26 @@ enum PalettePlacement {
             y: visibleFrame.maxY - visibleFrame.height * topMarginFraction)
     }
 
-    /// Nil once no display shows enough of the compact bar to grab it back.
+    /// The display and the arrangement it is in, so an older layout keeps its entry rather than the
+    /// newest. A display that reports no identity falls back to the layout alone.
+    static func arrangementKey(uuid: String?, frame: CGRect) -> String {
+        let arrangement = [frame.minX, frame.minY, frame.width, frame.height]
+            .map { String(Int($0.rounded())) }
+            .joined(separator: ",")
+        guard let uuid else { return arrangement }
+        return "\(uuid)@\(arrangement)"
+    }
+
+    /// Nil once the display shows too little of the compact bar to grab it back.
     static func restored(
-        _ stored: CGPoint, graspable: CGSize, visibleFrames: [CGRect], minimumVisible: CGFloat
+        _ stored: CGPoint, graspable: CGSize, visibleFrame: CGRect, minimumVisible: CGFloat
     ) -> CGPoint? {
         let bar = CGRect(
             x: stored.x, y: stored.y - graspable.height,
             width: graspable.width, height: graspable.height)
-        let reachable = visibleFrames.contains { screen in
-            let shown = screen.intersection(bar)
-            return !shown.isNull && shown.width >= minimumVisible && shown.height >= minimumVisible
-        }
-        return reachable ? stored : nil
+        let shown = visibleFrame.intersection(bar)
+        return !shown.isNull && shown.width >= minimumVisible && shown.height >= minimumVisible
+            ? stored : nil
     }
 
     /// Near enough to the default placement that releasing the drag should drop it home.

@@ -39,14 +39,16 @@ struct PalettePlacementTests {
             in: screen, width: width, topMarginFraction: topFraction)
     }
 
-    static func restored(_ stored: CGPoint, screens: [CGRect]) -> CGPoint? {
+    static func restored(_ stored: CGPoint, frame: CGRect) -> CGPoint? {
         PalettePlacement.restored(
-            stored, graspable: graspable, visibleFrames: screens, minimumVisible: minimumVisible)
+            stored, graspable: graspable, visibleFrame: frame, minimumVisible: minimumVisible)
     }
 
     static func main() {
         theDefaultPlacement()
-        restoringAcrossDisplays()
+        storedAnchors()
+        arrangementKeys()
+        restoringOnTheDisplayInUse()
         restoringPartlyOffscreen()
         snapping()
         menuPanelAnchors()
@@ -80,45 +82,101 @@ struct PalettePlacementTests {
             "and its top edge is measured from its own maxY")
     }
 
+    // MARK: - What a drag stores
+
+    /// A drop is remembered as the corner it was left at — absolute, never fitted to the display.
+    static func storedAnchors() {
+        let dropped = CGPoint(x: 512, y: 1100)
+        expect(restored(dropped, frame: laptop) == dropped, "a drop reads back at the corner it was left")
+
+        // One global point is the drift this replaces: the laptop's own home does not even fit the
+        // external display, so a shared corner is re-read wherever its numbers happen to land.
+        expect(
+            restored(home(laptop), frame: external) == nil,
+            "a corner from one display need not fit the other, so entries must not be shared")
+
+        // Two displays keeping the same literal coordinate are two entries; the key keeps them apart.
+        expect(
+            PalettePlacement.arrangementKey(uuid: "display", frame: laptop)
+                != PalettePlacement.arrangementKey(uuid: "display", frame: external),
+            "the same corner on two displays files under two keys")
+    }
+
+    // MARK: - What a drop is filed under
+
+    /// A display and its arrangement, falling back to the arrangement when the display has no id.
+    static func arrangementKeys() {
+        let display = "9f2b0c4e-2a71-4a55-9d6e-0b1f3c2d4e5f"
+        expect(
+            PalettePlacement.arrangementKey(uuid: display, frame: laptop)
+                == PalettePlacement.arrangementKey(uuid: display, frame: laptop),
+            "one display in one arrangement is a single key")
+        expect(
+            PalettePlacement.arrangementKey(uuid: display, frame: laptop)
+                != PalettePlacement.arrangementKey(uuid: display, frame: external),
+            "the same display arranged elsewhere is a key of its own")
+        expect(
+            PalettePlacement.arrangementKey(uuid: display, frame: laptop)
+                != PalettePlacement.arrangementKey(uuid: nil, frame: laptop),
+            "a display with no identity falls back to the arrangement alone")
+        expect(
+            PalettePlacement.arrangementKey(uuid: display, frame: laptop)
+                == PalettePlacement.arrangementKey(uuid: display, frame: CGRect(
+                    x: 0.0004, y: 0, width: 2560, height: 1415)),
+            "sub-point noise from a drag does not name a second arrangement")
+    }
+
     // MARK: - Restoring a stored position
 
-    static func restoringAcrossDisplays() {
-        let onExternal = CGPoint(x: 2700, y: 900)
-        expect(
-            restored(onExternal, screens: [laptop, external]) == onExternal,
-            "a position on a connected display comes back verbatim")
-        expect(
-            restored(onExternal, screens: [laptop]) == nil,
-            "the same position is dropped once that display is unplugged")
+    static func restoringOnTheDisplayInUse() {
+        // Dropped on the wide external display, read on that same display: the same corner.
+        let dropped = CGPoint(x: external.minX + 1152, y: external.maxY - 190)
+        expect(restored(dropped, frame: external) == dropped, "it comes back on the display in use")
+        expect(dropped.x >= laptop.maxX, "the corner is off the laptop, so only its own display fits it")
 
         // The fallback has to be reachable, not merely different.
         expect(
-            restored(home(laptop), screens: [laptop]) != nil,
-            "the default placement is always restorable on its own screen")
+            restored(home(laptop), frame: laptop) != nil,
+            "the default placement is always restorable on its own display")
+
+        // A drop always lands with its corner on screen, so only a hand-edited point reaches the guard.
+        let nearEdge = CGPoint(x: laptop.maxX - minimumVisible, y: 900)
         expect(
-            restored(CGPoint(x: -4000, y: 9000), screens: [laptop, external]) == nil,
-            "a position on no display at all is dropped")
+            restored(nearEdge, frame: laptop) != nil,
+            "a corner near an edge still leaves the grab strip showing")
+        let past = CGPoint(x: laptop.maxX, y: 900)
+        expect(
+            restored(past, frame: laptop) == nil,
+            "one past the edge falls home once the strip is gone")
+        let below = CGPoint(x: 400, y: laptop.minY)
+        expect(restored(below, frame: laptop) == nil, "a corner below the display is dropped")
+        let above = CGPoint(x: 400, y: laptop.maxY + graspable.height)
+        expect(restored(above, frame: laptop) == nil, "and so is one above it")
+        let low = CGPoint(x: 400, y: laptop.maxY - 10)
+        expect(
+            restored(low, frame: laptop) != nil,
+            "while a corner low on the display still keeps its strip on screen")
     }
 
     static func restoringPartlyOffscreen() {
         // Deliberately slid off to the right: still restorable while a grabbable sliver shows.
         let sliver = CGPoint(x: laptop.maxX - minimumVisible, y: 900)
         expect(
-            restored(sliver, screens: [laptop]) != nil,
+            restored(sliver, frame: laptop) != nil,
             "exactly the minimum sliver of the compact bar is still grabbable")
         let tooFar = CGPoint(x: laptop.maxX - minimumVisible + 1, y: 900)
         expect(
-            restored(tooFar, screens: [laptop]) == nil,
+            restored(tooFar, frame: laptop) == nil,
             "one point less than that is not, and falls back to the default")
 
         // Slid off the top, where the whole grab strip is what goes missing first.
         let peeking = CGPoint(x: 800, y: laptop.maxY + graspable.height - minimumVisible)
         expect(
-            restored(peeking, screens: [laptop]) != nil,
+            restored(peeking, frame: laptop) != nil,
             "a bar hanging off the top edge is grabbable while the minimum still shows")
         let gone = CGPoint(x: 800, y: laptop.maxY + graspable.height - minimumVisible + 1)
         expect(
-            restored(gone, screens: [laptop]) == nil,
+            restored(gone, frame: laptop) == nil,
             "pushed one point further up it is dropped")
     }
 
@@ -229,13 +287,13 @@ struct PalettePlacementTests {
             let sliver = CGPoint(x: laptop.maxX - minimumVisible, y: 900)
             expect(
                 PalettePlacement.restored(
-                    sliver, graspable: graspable, visibleFrames: [laptop],
+                    sliver, graspable: graspable, visibleFrame: laptop,
                     minimumVisible: minimumVisible) != nil,
                 "the minimum sliver is still grabbable \(label)")
             expect(
                 PalettePlacement.restored(
                     CGPoint(x: laptop.maxX, y: 900), graspable: graspable,
-                    visibleFrames: [laptop], minimumVisible: minimumVisible) == nil,
+                    visibleFrame: laptop, minimumVisible: minimumVisible) == nil,
                 "a bar dragged fully past the right edge is dropped \(label)")
         }
     }
