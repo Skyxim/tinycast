@@ -62,7 +62,7 @@ struct CalcTests {
         expectDisplay("2.5e8 / 2", "125,000,000")
         expectDisplay("1E6 + 1", "1,000,001")  // uppercase E
         expectDisplay("1e6", "1,000,000")  // a lone shorthand literal cards like "10k"
-        expectNil("10em")  // partial "e" isn't an exponent, so the ident scanner still gets it
+        expectDisplay("10em", "160 px")  // partial "e" isn't an exponent, so `em` stays a unit
         expectDisplay("1e3k + 1", "1,000,001")  // exponent then compact suffix, both applied
 
         // Exact up to 2^53, past the old 1e15 cutoff — truncating these lost real digits on copy
@@ -510,6 +510,23 @@ struct CalcTests {
         expectError("10px + 1in", "Cannot add Pixels and Length.")
         expectNil("3000px / 0ppi")
         expectNil("pixels")
+        expectDisplay("16px to rem", "1 rem")
+        expectDisplay("1.5rem to px", "24 px")
+        expectDisplay("rem to px", "16 px")
+        expectDisplay("rem px", "16 px")
+        expectDisplay("24px", "1.5 rem")
+        expectBadges("24px", source: "Pixels", target: "REM")
+        expectDisplay("2rem", "32 px")
+        expectDisplay("2em", "32 px")
+        expectDisplay("0.875 rems", "14 px")
+        expectDisplay("1em to rem", "1 rem")
+        expectDisplay("1rem + 8px", "24 px")
+        expectDisplay("8px + 1rem", "1.5 rem")
+        expectDisplay("2rem * 3", "6 rem")
+        expectDisplay("32px / 1rem", "2")
+        expectDisplay("48rem / 96ppi to in", "8 in")
+        expectError("1rem to cm", "Cannot convert Pixels to Length.")
+        expectNil("rem")
         expectDisplay("20m2 / 4m", "5 m")
         expectDisplay("sqrt(25m2)", "5 m")
         expectDisplay("cbrt(-8m3)", "-2 m")
@@ -997,6 +1014,35 @@ struct CalcTests {
         expectDisplay("1 cup to ml", "236.5882365 mL")
         expectNil("5pm london in sf + 2 kg")
 
+        for components in [
+            DateComponents(year: 2026, month: 9, day: 15, hour: 12),
+            DateComponents(year: 2026, month: 9, day: 30, hour: 12),
+            DateComponents(year: 2026, month: 12, day: 31, hour: 12),
+            DateComponents(year: 2026, month: 3, day: 8, hour: 12),
+            DateComponents(year: 2026, month: 11, day: 1, hour: 12)
+        ] {
+            let now = clock.calendar.date(from: components)!
+            for home in ["UTC", "Asia/Shanghai", "America/Los_Angeles"] {
+                var calendar = clock.calendar
+                calendar.timeZone = TimeZone(identifier: home)!
+                for (query, expected) in [
+                    ("23:30 Pago Pago to Kiritimati", "12:30 AM (in 2 days)"),
+                    ("00:30 Kiritimati to Pago Pago", "11:30 PM (2 days ago)"),
+                    ("22:59 Pago Pago to Kiritimati", "11:59 PM (tomorrow)"),
+                    ("01:00 Kiritimati to Pago Pago", "12:00 AM (yesterday)"),
+                    ("12:00 Pago Pago to Pago Pago", "12:00 PM")
+                ] {
+                    expectDisplayAt(query, expected, now: now, calendar: calendar)
+                }
+            }
+        }
+        expectBadgesAt("23:30 Pago Pago to Kiritimati", source: "Pago Pago", target: "Kiritimati")
+        expectBadgesAt("00:30 Kiritimati to Pago Pago", source: "Kiritimati", target: "Pago Pago")
+        expectCopy("23:30 Pago Pago to Kiritimati", "12:30 AM")
+        expectCopy("00:30 Kiritimati to Pago Pago", "11:30 PM")
+        expectDisplayAt("23:30 Pago Pago to Kiritimati + 30 min", "1:00 AM (tomorrow)")
+        expectDisplayAt("00:30 Kiritimati to Pago Pago + 30 min", "12:00 AM (yesterday)")
+
         // `<weekday> in <n> weeks` answers that weekday inside the week it lands in
         expectDisplayAt("monday in 3 weeks", "10 August")
         expectDisplayAt("monday in 1 week", "27 July")
@@ -1288,10 +1334,12 @@ struct CalcTests {
 
     // MARK: - Helpers
 
-    static func expectDisplayAt(_ query: String, _ expected: String, calendar: Calendar? = nil) {
+    static func expectDisplayAt(
+        _ query: String, _ expected: String, now: Date = clock.now, calendar: Calendar? = nil
+    ) {
         guard
             case .value(let display, _)? = CalcEngine.evaluate(
-                query, now: clock.now, calendar: calendar ?? clock.calendar)?.payload
+                query, now: now, calendar: calendar ?? clock.calendar)?.payload
         else {
             fail(query, expected: expected, got: "nil / error")
             return

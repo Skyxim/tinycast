@@ -146,8 +146,11 @@ so a repeat press stays idempotent unless asked otherwise:
 - **`.displays`** — every display contributes two half-slots to one strip, ordered left-to-right by
   `ordered(_:)`. Left and Top walk it backwards, Right and Bottom forwards, both wrapping, so one
   shortcut sweeps the whole desktop in one direction: on two displays, Left Half gives
-  D1-left → D2-right → D2-left → D1-right. One display makes the mode a quiet no-op — a length of 1 —
-  rather than a left/right flip in place, matching Next Display's own single-display behaviour.
+  D1-left → D2-right → D2-left → D1-right. The walk counts from the display the chain started on,
+  which `decide` carries as `originScreenID`: from the second press the window already sits on the
+  display it was moved to, and counting from there would overshoot a slot. One display makes the
+  mode a quiet no-op — a length of 1 — rather than a left/right flip in place, matching Next
+  Display's own single-display behaviour.
 
 The two are deliberately exclusive rather than composable: a 12-press chain over two displays is not a
 shortcut any more, and Raycast's own setting is the same single choice. `Half` carries the (axis, edge)
@@ -217,7 +220,9 @@ framework linkage and no SIP change — only public `CGEvent` calls carrying und
 
 `SpaceSwitcher` posts three phases — began, changed, ended — to `.cgSessionEventTap`. A two-phase
 gesture is ignored. Fields 55 (`DockControl`), 110 (dock-swipe HID type), 132 (phase), 123 (horizontal
-motion) and 124 (progress) are common to both encodings; **positive is always "next"**. Progress is
+motion) and 124 (progress) are common to both encodings; **positive is "next"**, except that macOS 27
+applies Natural Scrolling to the synthetic swipe, so `SpaceSwitcher` reverses the direction while
+`com.apple.swipescrolldirection` is on (its default when the key is absent). Progress is
 deliberately the smallest representable nudge: a real distance makes the WindowServer draw the slide.
 
 **macOS 27 changed the contract.** Through macOS 26 the public fields are enough, and velocity (129 and
@@ -275,13 +280,13 @@ quantize to zero and the gesture would do nothing.
 
 ## Testing
 
-`Tests/window-command-test.swift` (357 assertions) covers the catalog, the AX-space convention lock,
+`Tests/window-command-test.swift` (500 assertions) covers the catalog, the AX-space convention lock,
 tiling on divisible and non-divisible screens, off-origin and negative-coordinate displays, gap
 arithmetic including degenerate values, sizing, the Make Larger/Smaller round trip, nudges, display
-moves and wrapping, both cycling modes including the strip walk and its wrap, restore recovery, every
-`WindowActionMemory` rule, and a fuzz sweep over every command × gap × screen × cycle × step ×
-degenerate window frame checking for non-finite output, negative dimensions, off-screen results,
-non-determinism and, at step 0, drift on repeat.
+moves and wrapping, both cycling modes including the strip walk, its wrap and a run of real presses
+across displays, restore recovery, every `WindowActionMemory` rule, and a fuzz sweep over every
+command × gap × screen × cycle × step × degenerate window frame checking for non-finite output,
+negative dimensions, off-screen results, non-determinism and, at step 0, drift on repeat.
 
 `Tests/space-gesture-test.swift` (121 assertions) covers the other pure half: the fixed-point encoding
 and its ±1 floor, both field tables and the sign convention shared between them, the ended-only fling
